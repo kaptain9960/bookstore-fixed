@@ -5,7 +5,7 @@ app_name = 'store'
 
 urlpatterns = [
 	path('', views.index, name = "index"),
-	path('login', views.signin, name="signin"),
+	path('signin', views.signin, name="signin"),
 	path('logout', views.signout, name="signout"),
 	path('registration', views.registration, name="registration"),
 	path('book/<int:id>', views.get_book, name="book"),
