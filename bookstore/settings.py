@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = '#*k)9t8vzu)4j2hr=l@)emxs^ev%6z5)ri$q4g4%nb^n+pr37y'
 DEBUG = True
-ALLOWED_HOSTS = ['electronic-book-store.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'electronic-book-store.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
