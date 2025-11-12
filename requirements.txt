@@ -13,7 +13,6 @@ django-admin-honeypot==1.1.0
 django-allauth==65.13.0
 django-cors-headers==4.7.0
 django-crispy-forms==2.4
-django-debug-toolbar==6.1.0
 gunicorn==23.0.0
 html5lib==1.1
 idna==3.10
