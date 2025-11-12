@@ -9,3 +9,8 @@
 
 </br>
 
+This is a fully functional ecommerce store for books built using Python (Django), HTML, CSS and JavaScript.
+
+
+
+
