@@ -12,4 +12,6 @@ urlpatterns = [
 	path('books', views.get_books, name="books"),
 	path('category/<int:id>', views.get_book_category, name="category"),
 	path('writer/<int:id>', views.get_writer, name = "writer"),
+    path('forgot-password/', views.forgot_password, name='forgot-password'),
+    path('reset-password/<uidb64>/<token>/', views.reset_password, name='reset-password'),
 ]

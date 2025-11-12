@@ -11,7 +11,20 @@
 	<div class="row justify-content-md-center">
 		<div class="col-md-4 col-sm-3">
 			<div class="signup-form">
-				<div class="messages"></div>	
+				<!-- Display Django Messages -->
+				{% if messages %}
+					<div class="messages">
+						{% for message in messages %}
+							<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+								{{ message }}
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="times;">&times;</span>
+								</button>
+							</div>
+						{% endfor %}
+					</div>
+				{% endif %}
+				
 				<h3> Create account</h3>	
 				<form action="" method="POST" class="auth-validate-form">
 					{% csrf_token %}
@@ -40,5 +53,9 @@
 		</div>
 	</div>
 </div>
+
+<!-- Add Bootstrap JS for alert dismissal -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
 </body>
 </html>

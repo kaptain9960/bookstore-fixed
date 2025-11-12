@@ -5,6 +5,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from .forms import RegistrationForm, ReviewForm
+from django.template.loader import render_to_string
+from .forms import ForgotPasswordForm, ResetPasswordForm
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 def index(request):
@@ -29,7 +37,7 @@ def signin(request):
                 login(request, auth)
                 return redirect('store:index')
             else:
-            	messages.error(request, 'username and password doesn\'t match')
+                messages.error(request, 'username and password doesn\'t match')
 
     return render(request, "store/login.html")	
 
@@ -40,12 +48,20 @@ def signout(request):
 
 
 def registration(request):
-	form = RegistrationForm(request.POST or None)
-	if form.is_valid():
-		form.save()
-		return redirect('store:signin')
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'Account created successfully! Welcome {user.username}!')
+            return redirect('store:signin')
+        else:
+            # Error messages will be displayed through form.errors in template
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = RegistrationForm()
+    
+    return render(request, 'store/signup.html', {"form": form})
 
-	return render(request, 'store/signup.html', {"form": form})
 
 def payment(request):
     return render(request, 'store/payment.html')
@@ -108,4 +124,74 @@ def get_writer(request, id):
         "book": book
     }
     return render(request, "store/writer.html", context)
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.get(email=email)
+            
+            # Generate token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Build reset link
+            reset_link = request.build_absolute_uri(
+                f'/reset-password/{uid}/{token}/'
+            )
+            
+            messages.success(
+                request, 
+                f'Password reset link generated! Click here to reset: {reset_link}'
+            )
+            return redirect('store:forgot-password')
+            
+            # UNCOMMENT THIS FOR PRODUCTION (when email is configured)
+            # # Send email
+            # subject = 'Reset Your BookStore Password'
+            # message = render_to_string('store/password_reset_email.html', {
+            #     'user': user,
+            #     'reset_link': reset_link,
+            # })
+            # 
+            # send_mail(
+            #     subject,
+            #     message,
+            #     settings.EMAIL_HOST_USER,
+            #     [email],
+            #     fail_silently=False,
+            # )
+            # 
+            # messages.success(request, 'Password reset link has been sent to your email!')
+            # return redirect('store:signin')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ForgotPasswordForm()
+    
+    return render(request, 'store/forgot-password.html', {'form': form})
+
+def reset_password(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = ResetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Your password has been reset successfully! You can now login.')
+                return redirect('store:signin')
+        else:
+            form = ResetPasswordForm(user)
+        
+        return render(request, 'store/reset-password.html', {'form': form})
+    else:
+        messages.error(request, 'The reset link is invalid or has expired.')
+        return redirect('store:forgot-password')
 

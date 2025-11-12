@@ -33,7 +33,11 @@
 					</div>
 					<button type="submit" class="btn btn-warning">Login</button>
 				</form>
-				<a href="#">Forgot your password?</a>
+				<div class="text-center mt-3">
+					<a href="{% url 'store:forgot-password' %}" class="text-muted">
+						Forgot your password?
+					</a>
+				</div>
 				<div class="a-divider-break"><h5>New to BookStore?</h5></div>
 				<a class="btn btn-default" href="{% url 'store:registration' %}">Create your BookStore account</a>
 			</div> 

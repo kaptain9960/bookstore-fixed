@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'order.apps.OrderConfig',
     'crispy_bootstrap4',
     'crispy_forms',
+    'debug_toolbar',
 ]
 
 
@@ -55,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware', 
 ]
 
 ROOT_URLCONF = 'bookstore.urls'
@@ -79,6 +81,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bookstore.wsgi.application'
 
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -161,3 +167,12 @@ MESSAGE_TAGS = {
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+
+# Email Configuration for Production
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'divineigwesi1184@gmail.com'  
+EMAIL_HOST_PASSWORD = 'wuxc bwcz nerr ibss'  
+DEFAULT_FROM_EMAIL = 'BookStore <divineigwesi1184@gmail.com>'

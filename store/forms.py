@@ -1,12 +1,14 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, SetPasswordForm
 from .models import Review
+
 
 class RegistrationForm(UserCreationForm):
     name = forms.CharField(required=True)
     email = forms.EmailField(required=True)
+    
     class Meta:
         model = User
         fields = [
@@ -16,6 +18,19 @@ class RegistrationForm(UserCreationForm):
             'password1',
             'password2'
         ]
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken. Please choose another one.")
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email address is already registered. Please use another email or login.")
+        return email
+    
     def save(self, commit=True):
         user = super(RegistrationForm, self).save(commit=False)
         user.first_name = self.cleaned_data['name']
@@ -25,6 +40,7 @@ class RegistrationForm(UserCreationForm):
             user.save()
 
         return user
+
 
 class ReviewForm(forms.ModelForm):
     review_star = forms.IntegerField(widget=forms.HiddenInput(), initial=1)
@@ -36,9 +52,40 @@ class ReviewForm(forms.ModelForm):
             'review_star',
             'review_text'
         ]
+        
     def __init__(self, *args, **kwargs):
         super(ReviewForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_show_labels = False
 
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your email address'
+        })
+    )
     
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not User.objects.filter(email=email).exists():
+            raise forms.ValidationError("No account found with this email address.")
+        return email
+
+
+class ResetPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter new password'
+        })
+    )
+    new_password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirm new password'
+        })
+    )
